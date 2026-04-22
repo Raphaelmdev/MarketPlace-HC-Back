@@ -6,6 +6,7 @@ import br.com.hazze.cury.marketplace.dto.request.ProductUpdateStockDTO;
 import br.com.hazze.cury.marketplace.dto.response.ProductResponseDTO;
 import br.com.hazze.cury.marketplace.entities.Category;
 import br.com.hazze.cury.marketplace.entities.Product;
+import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
 import br.com.hazze.cury.marketplace.mappers.ProductMapper;
 import br.com.hazze.cury.marketplace.repositories.CategoryRepository;
@@ -14,6 +15,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import br.com.hazze.cury.marketplace.repositories.ProductRepository;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +40,47 @@ public class ProductService {
         product.setCategory(category);
 
         return productMapper.toResponse(productRepository.save(product));
+    }
+
+    @Transactional
+    public ProductResponseDTO uploadImage(Long id, MultipartFile file) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado."));
+
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("Arquivo de imagem é obrigatório.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new BusinessException("O arquivo enviado deve ser uma imagem.");
+        }
+
+        try {
+            Path uploadDir = Paths.get("uploads");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            String originalName = file.getOriginalFilename();
+            String extension = "";
+
+            if (originalName != null && originalName.contains(".")) {
+                extension = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            String fileName = UUID.randomUUID() + extension;
+            Path filePath = uploadDir.resolve(fileName);
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            product.setImageUrl("/uploads/" + fileName);
+
+            return productMapper.toResponse(productRepository.save(product));
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao salvar a imagem do produto.", e);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +119,6 @@ public class ProductService {
         product.setPrice(dto.price());
         product.setStock(dto.stock());
         product.setActive(dto.active());
-        product.setImageUrl(dto.imageUrl());
         product.setCategory(category);
 
         return productMapper.toResponse(productRepository.save(product));

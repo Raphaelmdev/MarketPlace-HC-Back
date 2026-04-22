@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryService service;
 
     @SecurityRequirement(name = "bearer-key")
     @Operation(summary = "Criar categoria", description = "Cadastra uma nova categoria. Acesso: ADMIN")
@@ -39,7 +39,7 @@ public class CategoryController {
     })
     @PostMapping
     public ResponseEntity<CategoryResponseDTO> create(@RequestBody @Valid CategoryAdminRequestDTO dto) {
-        CategoryResponseDTO response = categoryService.create(dto);
+        CategoryResponseDTO response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -51,7 +51,7 @@ public class CategoryController {
     })
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> findAll() {
-        return ResponseEntity.ok(categoryService.findAll());
+        return ResponseEntity.ok(service.findAll());
     }
 
     @Operation(summary = "Buscar categoria por ID", description = "Retorna uma categoria específica")
@@ -64,7 +64,7 @@ public class CategoryController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(categoryService.findById(id));
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -81,7 +81,7 @@ public class CategoryController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id, @RequestBody @Valid CategoryAdminRequestDTO dto) {
-        return ResponseEntity.ok(categoryService.update(id, dto));
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -97,7 +97,7 @@ public class CategoryController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        categoryService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
