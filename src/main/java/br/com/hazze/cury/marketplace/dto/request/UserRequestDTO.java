@@ -30,12 +30,12 @@ public record UserRequestDTO(
         @Pattern(regexp = "^\\d{10,11}$", message = "O telefone deve conter 10 ou 11 números.")
         String phone,
 
-        @Schema(example = "12345678901")
+        @Schema(example = "12345678")
         @NotBlank(message = "O CEP é obrigatório.")
         @Pattern(regexp = "^\\d{8}$", message = "O CEP deve conter 8 números.")
         String cep,
 
-        @Schema(example = "12345678")
+        @Schema(example = "12345678910")
         @Pattern(regexp = "^\\d{11}$", message = "O CPF deve conter exatamente 11 números.")
         String cpf
 ) {

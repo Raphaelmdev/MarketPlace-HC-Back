@@ -8,7 +8,6 @@ import br.com.hazze.cury.marketplace.dto.response.OrderResponseDTO;
 import br.com.hazze.cury.marketplace.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderService service;
 
     @SecurityRequirement(name = "bearer-key")
     @Operation(summary = "Criar pedido", description = "Cria um novo pedido a partir dos itens enviados. Acesso: CLIENT")
@@ -47,7 +46,7 @@ public class OrderController {
     })
     @PostMapping
     public ResponseEntity<OrderResponseDTO> create(@RequestBody @Valid OrderRequestDTO dto) {
-        OrderResponseDTO response = orderService.create(dto);
+        OrderResponseDTO response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -62,7 +61,7 @@ public class OrderController {
     })
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> findAll() {
-        return ResponseEntity.ok(orderService.findAll());
+        return ResponseEntity.ok(service.findAll());
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -78,7 +77,7 @@ public class OrderController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.findById(id));
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -92,7 +91,7 @@ public class OrderController {
     })
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDTO>> findByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(orderService.findByUserId(userId));
+        return ResponseEntity.ok(service.findByUserId(userId));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -110,7 +109,7 @@ public class OrderController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id,
                                                          @RequestBody @Valid OrderStatusUpdateDTO dto) {
-        return ResponseEntity.ok(orderService.updateStatus(id, dto));
+        return ResponseEntity.ok(service.updateStatus(id, dto));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -126,7 +125,7 @@ public class OrderController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        orderService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserService service;
 
     @Operation(summary = "Cadastrar usuário", description = "Cria um novo usuário comum")
     @ApiResponses({
@@ -38,7 +38,7 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO dto) {
-        UserResponseDTO response = userService.create(dto);
+        UserResponseDTO response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -54,7 +54,7 @@ public class UserController {
     })
     @PostMapping("/admin")
     public ResponseEntity<UserResponseDTO> createAdmin(@RequestBody @Valid UserAdminRequestDTO dto) {
-        UserResponseDTO response = userService.createAdmin(dto);
+        UserResponseDTO response = service.createAdmin(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -69,7 +69,7 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> findAll() {
-        return ResponseEntity.ok(userService.findAll());
+        return ResponseEntity.ok(service.findAll());
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -86,7 +86,7 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.findById(id));
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -103,7 +103,7 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UserRequestDTO dto) {
-        return ResponseEntity.ok(userService.update(id, dto));
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -120,7 +120,7 @@ public class UserController {
     })
     @PatchMapping("/{id}/status")
     public ResponseEntity<UserResponseDTO> updateStatus(@PathVariable Long id, @RequestBody @Valid UserStatusUpdateDTO dto) {
-        return ResponseEntity.ok(userService.updateStatus(id, dto));
+        return ResponseEntity.ok(service.updateStatus(id, dto));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -136,7 +136,7 @@ public class UserController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        userService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

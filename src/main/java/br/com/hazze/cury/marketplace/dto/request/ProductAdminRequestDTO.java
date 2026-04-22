@@ -28,10 +28,6 @@ public record ProductAdminRequestDTO(
         @NotNull(message = "O status ativo é obrigatório.")
         Boolean active,
 
-        @Schema(example = "https://site.com/imagem.png")
-        @Size(max = 500, message = "A URL da imagem deve ter no máximo 500 caracteres.")
-        String imageUrl,
-
         @Schema(example = "1")
         @NotNull(message = "O ID da categoria é obrigatório.")
         Long categoryId
