@@ -122,4 +122,22 @@ DB_MYSQL_USER=
 DB_MYSQL_PASSWORD=
 JWT_SECRET=
 
-
+```
+## Como Executar
+```
+git clone https://github.com/seu-repo.git
+cd projeto
+./mvnw spring-boot:run
+```
+## Autenticação
+```
+Authorization: Bearer {token}
+```
+## Documentação
+- Swagger:
+```
+http://localhost:8080/swagger-ui.html
+```
+# Autor
+### Raphael Martins
+ - Projeto desenvolvido para TCC e portfólio.
