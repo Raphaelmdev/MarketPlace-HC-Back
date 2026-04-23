@@ -9,11 +9,10 @@ import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
 import br.com.hazze.cury.marketplace.mappers.UserMapper;
 import br.com.hazze.cury.marketplace.repositories.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,31 +26,25 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new BusinessException("Já existe um usuário com esse e-mail.");
-        }
-
-        if (dto.cpf() != null && userRepository.existsByCpf(dto.cpf())) {
-            throw new BusinessException("Já existe um usuário com esse CPF.");
-        }
+        validateEmailAndCpf(dto.email(), dto.cpf());
 
         User user = userMapper.toEntity(dto);
+
         user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setActive(true);
+
         return userMapper.toResponse(userRepository.save(user));
     }
 
     @Transactional
     public UserResponseDTO createAdmin(UserAdminRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new BusinessException("Já existe um usuário com esse e-mail.");
-        }
-
-        if (dto.cpf() != null && userRepository.existsByCpf(dto.cpf())) {
-            throw new BusinessException("Já existe um usuário com esse CPF.");
-        }
+        validateEmailAndCpf(dto.email(), dto.cpf());
 
         User user = userMapper.toEntity(dto);
+
         user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setActive(true);
+
         return userMapper.toResponse(userRepository.save(user));
     }
 
@@ -62,16 +55,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDTO findById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
-
+        User user = findEntityById(id);
         return userMapper.toResponse(user);
     }
 
     @Transactional
     public UserResponseDTO update(Long id, UserRequestDTO dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+        User user = findEntityById(id);
 
         if (!user.getEmail().equals(dto.email()) && userRepository.existsByEmail(dto.email())) {
             throw new BusinessException("Já existe um usuário com esse e-mail.");
@@ -87,13 +77,20 @@ public class UserService {
         user.setPhone(dto.phone());
         user.setCpf(dto.cpf());
 
+        user.setCep(dto.cep());
+        user.setStreet(dto.street());
+        user.setNeighborhood(dto.neighborhood());
+        user.setCity(dto.city());
+        user.setState(dto.state());
+        user.setNumber(dto.number());
+        user.setComplement(dto.complement());
+
         return userMapper.toResponse(userRepository.save(user));
     }
 
     @Transactional
     public UserResponseDTO updateStatus(Long id, UserStatusUpdateDTO dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+        User user = findEntityById(id);
 
         user.setActive(dto.active());
 
@@ -102,14 +99,22 @@ public class UserService {
 
     @Transactional
     public void delete(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
-
+        User user = findEntityById(id);
         userRepository.delete(user);
     }
+
+    private void validateEmailAndCpf(String email, String cpf) {
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException("Já existe um usuário com esse e-mail.");
+        }
+
+        if (cpf != null && userRepository.existsByCpf(cpf)) {
+            throw new BusinessException("Já existe um usuário com esse CPF.");
+        }
+    }
+
+    private User findEntityById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+    }
 }
-
-
-
-
-

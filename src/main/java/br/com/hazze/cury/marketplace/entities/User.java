@@ -35,14 +35,32 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = true,length = 8)
-    private String cep;
-
     @Column(length = 11)
     private String phone;
 
     @Column(unique = true, length = 11)
     private String cpf;
+
+    @Column(nullable = true,length = 8)
+    private String cep;
+
+    @Column(length = 150)
+    private String street;
+
+    @Column(length = 10)
+    private String number;
+
+    @Column(length = 100)
+    private String complement;
+
+    @Column(length = 100)
+    private String neighborhood;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 2)
+    private String state;
 
     @Column(nullable = false)
     private Boolean active;
