@@ -47,7 +47,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 150)
     private String street;
 
-    @Column(length = 10)
+    @Column(length = 10, nullable = false)
     private String number;
 
     @Column(length = 100)

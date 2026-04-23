@@ -1,10 +1,7 @@
 package br.com.hazze.cury.marketplace.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record UserRequestDTO(
 
@@ -44,6 +41,7 @@ public record UserRequestDTO(
         String street,
 
         @Schema(example = "123")
+        @NotBlank(message = "O número é obrigatório")
         @Pattern(regexp = "^\\d+[A-Za-z0-9-]*$", message = "Número inválido.")
         String number,
 
@@ -52,15 +50,18 @@ public record UserRequestDTO(
         String complement,
 
         @Schema(example = "Centro")
+        @NotBlank(message = "O número é obrigatório")
         @Size(max = 100, message = "Bairro deve ter no máximo 100 caracteres.")
         String neighborhood,
 
         @Schema(example = "Rio de Janeiro")
+        @NotBlank(message = "A cidade é obrigatória")
         @Size(max = 100, message = "Cidade deve ter no máximo 100 caracteres.")
         String city,
 
         @Schema(example = "SP")
         @Size(min = 2, max = 2)
+        @NotBlank(message = "A UF é obrigatória")
         @Pattern(regexp = "^[A-Z]{2}$", message = "UF deve estar no formato SP, RJ, etc.")
         String state
 
