@@ -27,14 +27,14 @@ public record RegisterRequestDTO(
 
         @Schema(example = "11999999999")
         @Pattern(
-                regexp = "^\\d{10,11}$",
+                regexp = "^$|^\\d{10,11}$",
                 message = "O telefone deve conter 10 ou 11 números."
         )
         String phone,
 
         @Schema(example = "12345678901")
         @Pattern(
-                regexp = "^\\d{11}$",
+                regexp = "^$|^\\d{11}$",
                 message = "O CPF deve conter exatamente 11 números."
         )
         String cpf,
@@ -45,6 +45,41 @@ public record RegisterRequestDTO(
                 regexp = "^\\d{8}$",
                 message = "O CEP deve conter 8 números."
         )
-        String cep
-) {
-}
+        String cep,
+
+        @Schema(example = "Rua Exemplo")
+        @NotBlank(message = "A rua é obrigatória.")
+        @Size(max = 150, message = "Rua deve ter no máximo 150 caracteres.")
+        String street,
+
+        @Schema(example = "123")
+        @NotBlank(message = "O número é obrigatório.")
+        @Pattern(
+                regexp = "^\\d+[A-Za-z0-9-]*$",
+                message = "Número inválido."
+        )
+        String number,
+
+        @Schema(example = "Apto 12, Bloco B")
+        @Size(max = 100, message = "Complemento deve ter no máximo 100 caracteres.")
+        String complement,
+
+        @Schema(example = "Centro")
+        @NotBlank(message = "O bairro é obrigatório.")
+        @Size(max = 100, message = "Bairro deve ter no máximo 100 caracteres.")
+        String neighborhood,
+
+        @Schema(example = "Rio de Janeiro")
+        @NotBlank(message = "A cidade é obrigatória.")
+        @Size(max = 100, message = "Cidade deve ter no máximo 100 caracteres.")
+        String city,
+
+        @Schema(example = "SP")
+        @NotBlank(message = "A UF é obrigatória.")
+        @Size(min = 2, max = 2)
+        @Pattern(
+                regexp = "^[A-Z]{2}$",
+                message = "UF deve estar no formato SP, RJ, etc."
+        )
+        String state
+) {}

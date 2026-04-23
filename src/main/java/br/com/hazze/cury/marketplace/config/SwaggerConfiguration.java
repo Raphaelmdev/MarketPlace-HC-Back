@@ -14,8 +14,8 @@ public class SwaggerConfiguration {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Marketplace API")
-                        .description("API do sistema Marketplace HazzeCury com Validação JWT")
+                        .title("MarketPlace HazzeCury")
+                        .description("API para gerenciamento de pedidos, produtos sob medida, carrinho e usuários da plataforma de alfaiataria HazzeCury.")
                         .version("1.0.0"))
                 .components(new Components()
                         .addSecuritySchemes("bearer-key",
