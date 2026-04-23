@@ -35,7 +35,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(length = 11)
+    @Column(nullable = true, length = 11)
     private String phone;
 
     @Column(unique = true, length = 11)
@@ -47,19 +47,19 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 150)
     private String street;
 
-    @Column(length = 10, nullable = false)
+    @Column(nullable = false, length = 10)
     private String number;
 
     @Column(length = 100)
     private String complement;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String neighborhood;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String city;
 
-    @Column(length = 2)
+    @Column(nullable = false, length = 2)
     private String state;
 
     @Column(nullable = false)
