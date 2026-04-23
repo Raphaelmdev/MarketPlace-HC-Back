@@ -37,6 +37,7 @@ public record UserRequestDTO(
         String cep,
 
         @Schema(example = "Rua Exemplo")
+        @NotBlank(message = "A rua é obrigatória")
         @Size(max = 150, message = "Rua deve ter no máximo 150 caracteres.")
         String street,
 
@@ -50,7 +51,7 @@ public record UserRequestDTO(
         String complement,
 
         @Schema(example = "Centro")
-        @NotBlank(message = "O número é obrigatório")
+        @NotBlank(message = "O bairro é obrigatório")
         @Size(max = 100, message = "Bairro deve ter no máximo 100 caracteres.")
         String neighborhood,
 
@@ -60,8 +61,8 @@ public record UserRequestDTO(
         String city,
 
         @Schema(example = "SP")
-        @Size(min = 2, max = 2)
         @NotBlank(message = "A UF é obrigatória")
+        @Size(min = 2, max = 2)
         @Pattern(regexp = "^[A-Z]{2}$", message = "UF deve estar no formato SP, RJ, etc.")
         String state
 

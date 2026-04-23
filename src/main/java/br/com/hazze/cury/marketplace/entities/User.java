@@ -47,19 +47,19 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 150)
     private String street;
 
-    @Column(nullable = false, length = 10)
+    @Column(length = 10)
     private String number;
 
     @Column(length = 100)
     private String complement;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String neighborhood;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String city;
 
-    @Column(nullable = false, length = 2)
+    @Column(length = 2)
     private String state;
 
     @Column(nullable = false)
