@@ -20,6 +20,26 @@ public record UserResponseDTO(
 
         @Schema(example = "12345678901")
         String cpf,
+        @Schema(example = "12345678")
+        String cep,
+
+        @Schema(example = "Rua Exemplo")
+        String street,
+
+        @Schema(example = "123")
+        String number,
+
+        @Schema(example = "Apto 12, Bloco B")
+        String complement,
+
+        @Schema(example = "Centro")
+        String neighborhood,
+
+        @Schema(example = "São Paulo")
+        String city,
+
+        @Schema(example = "SP")
+        String state,
 
         @Schema(example = "true")
         Boolean active,
