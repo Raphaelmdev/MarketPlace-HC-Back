@@ -3,15 +3,29 @@ package br.com.hazze.cury.marketplace.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ErrorResponseDTO(
-        @Schema(example = "400")
+
+        @Schema(
+                description = "Código HTTP do erro.",
+                example = "400"
+        )
         int status,
 
-        @Schema(example = "Bad Request")
+        @Schema(
+                description = "Tipo do erro.",
+                example = "Bad Request"
+        )
         String error,
 
-        @Schema(example = "email: O e-mail deve ser válido.")
+        @Schema(
+                description = "Mensagem detalhada do erro.",
+                example = "email: O e-mail deve ser válido."
+        )
         String message,
 
-        @Schema(example = "/auth/login")
+        @Schema(
+                description = "Caminho da requisição que gerou o erro.",
+                example = "/auth/login"
+        )
         String path
+
 ) {}

@@ -6,34 +6,65 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ProductResponseDTO(
-        @Schema(example = "1")
+
+        @Schema(
+                description = "ID do produto.",
+                example = "1"
+        )
         Long id,
 
-        @Schema(example = "Notebook Dell")
+        @Schema(
+                description = "Nome do produto de alfaiataria.",
+                example = "Terno Slim Masculino"
+        )
         String name,
 
-        @Schema(example = "Notebook i7 16GB RAM")
+        @Schema(
+                description = "Descrição do produto.",
+                example = "Terno slim sob medida em tecido Oxford premium."
+        )
         String description,
 
-        @Schema(example = "4500.00")
+        @Schema(
+                description = "Preço do produto.",
+                example = "899.90"
+        )
         BigDecimal price,
 
-        @Schema(example = "10")
+        @Schema(
+                description = "Quantidade disponível em estoque.",
+                example = "10"
+        )
         Integer stock,
 
-        @Schema(example = "true")
+        @Schema(
+                description = "Indica se o produto está ativo.",
+                example = "true"
+        )
         Boolean active,
 
-        @Schema(example = "https://site.com/imagem.png")
+        @Schema(
+                description = "URL da imagem do produto.",
+                example = "https://site.com/imagens/terno-slim.png"
+        )
         String imageUrl,
 
-        @Schema(example = "1")
+        @Schema(
+                description = "ID da categoria do produto.",
+                example = "1"
+        )
         Long categoryId,
 
-        @Schema(example = "Eletrônicos")
+        @Schema(
+                description = "Nome da categoria.",
+                example = "Ternos"
+        )
         String categoryName,
 
-        @Schema(example = "2026-04-21T10:30:00")
+        @Schema(
+                description = "Data e hora de criação do produto.",
+                example = "2026-04-21T10:30:00"
+        )
         LocalDateTime createdAt
-) {
-}
+
+) {}

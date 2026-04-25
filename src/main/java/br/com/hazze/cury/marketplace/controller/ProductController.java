@@ -7,6 +7,7 @@ import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.ProductResponseDTO;
 import br.com.hazze.cury.marketplace.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,11 +16,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Tag(name = "Products", description = "Gerenciamento de produtos")
@@ -87,6 +90,74 @@ public class ProductController {
     @GetMapping("/active")
     public ResponseEntity<List<ProductResponseDTO>> findAllActive() {
         return ResponseEntity.ok(service.findAllActive());
+    }
+
+    @Operation(
+            summary = "Filtrar produtos",
+            description = """
+        Retorna produtos ativos com base em filtros opcionais.
+
+        Exemplos de uso:
+        - /products/filter?name=terno
+        - /products/filter?categoryId=1
+        - /products/filter?minPrice=300&maxPrice=1200
+        - /products/filter?name=terno&sort=price,desc
+        """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso",
+                    content = @Content(schema = @Schema(implementation = ProductResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Parâmetros inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductResponseDTO>> findWithFilters(
+
+            @Parameter(
+                    description = "Nome do produto (busca parcial)",
+                    example = "terno"
+            )
+            @RequestParam(required = false) String name,
+
+            @Parameter(
+                    description = "ID da categoria",
+                    example = "1"
+            )
+            @RequestParam(required = false) Long categoryId,
+
+            @Parameter(
+                    description = "Preço mínimo",
+                    example = "300"
+            )
+            @RequestParam(required = false) BigDecimal minPrice,
+
+            @Parameter(
+                    description = "Preço máximo",
+                    example = "1200"
+            )
+            @RequestParam(required = false) BigDecimal maxPrice,
+
+            @Parameter(
+                    description = "Ordenação no formato campo,direção (ex: price,asc ou price,desc)",
+                    example = "price,desc"
+            )
+            @RequestParam(defaultValue = "id,asc") String sort
+
+    ) {
+
+        String[] sortParams = sort.split(",");
+        String sortField = sortParams[0];
+        String sortDirection = sortParams.length > 1 ? sortParams[1] : "asc";
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        Sort sortObj = Sort.by(direction, sortField);
+
+        return ResponseEntity.ok(
+                service.findWithFilters(name, categoryId, minPrice, maxPrice, sortObj)
+        );
     }
 
     @Operation(summary = "Buscar produto por ID", description = "Retorna um produto específico")

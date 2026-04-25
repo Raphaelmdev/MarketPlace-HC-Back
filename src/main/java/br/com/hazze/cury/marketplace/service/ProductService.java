@@ -10,10 +10,13 @@ import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
 import br.com.hazze.cury.marketplace.mappers.ProductMapper;
 import br.com.hazze.cury.marketplace.repositories.CategoryRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import br.com.hazze.cury.marketplace.repositories.ProductRepository;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -91,6 +94,19 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponseDTO> findAllActive() {
         return productMapper.toResponseList(productRepository.findByActiveTrue());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> findWithFilters(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Sort sort
+    ) {
+        return productMapper.toResponseList(
+                productRepository.findWithFilters(name, categoryId, minPrice, maxPrice, sort)
+        );
     }
 
     @Transactional(readOnly = true)

@@ -1,7 +1,7 @@
 package br.com.hazze.cury.marketplace.mappers;
 
 import br.com.hazze.cury.marketplace.dto.request.UserAdminRequestDTO;
-import br.com.hazze.cury.marketplace.dto.request.UserRequestDTO;
+import br.com.hazze.cury.marketplace.dto.request.UserClientRequestDTO;
 import br.com.hazze.cury.marketplace.dto.response.UserResponseDTO;
 import br.com.hazze.cury.marketplace.entities.User;
 import org.mapstruct.Mapper;
@@ -17,7 +17,7 @@ public interface UserMapper {
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "role", expression = "java(br.com.hazze.cury.marketplace.entities.Role.CLIENT)")
-    User toEntity(UserRequestDTO dto);
+    User toEntity(UserClientRequestDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cart", ignore = true)

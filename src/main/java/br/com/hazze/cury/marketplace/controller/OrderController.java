@@ -5,6 +5,8 @@ import br.com.hazze.cury.marketplace.dto.request.OrderRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.OrderStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.OrderResponseDTO;
+import br.com.hazze.cury.marketplace.dto.response.ProductResponseDTO;
+import br.com.hazze.cury.marketplace.entities.User;
 import br.com.hazze.cury.marketplace.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,8 +19,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Tag(name = "Orders", description = "Pedidos")
@@ -45,8 +49,12 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> create(@RequestBody @Valid OrderRequestDTO dto) {
-        OrderResponseDTO response = service.create(dto);
+    public ResponseEntity<OrderResponseDTO> create(@RequestBody @Valid OrderRequestDTO dto, Authentication authentication) {
+
+        User user = (User) authentication.getPrincipal();
+
+        OrderResponseDTO response = service.create(dto, user.getId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -75,9 +83,14 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+    @GetMapping("/me/{id}")
+    public ResponseEntity<OrderResponseDTO> findMyOrderById(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        User user = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(service.findByIdForUser(id, user.getId()));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -89,9 +102,10 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderResponseDTO>> findByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(service.findByUserId(userId));
+    @GetMapping("/me")
+    public ResponseEntity<List<OrderResponseDTO>> findMyOrders(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(service.findByUserId(user.getId()));
     }
 
     @SecurityRequirement(name = "bearer-key")

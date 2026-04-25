@@ -33,6 +33,7 @@ public record RegisterRequestDTO(
         String phone,
 
         @Schema(example = "12345678901")
+        @NotBlank(message = "O cpf é obrigatório")
         @Pattern(
                 regexp = "^$|^\\d{11}$",
                 message = "O CPF deve conter exatamente 11 números."

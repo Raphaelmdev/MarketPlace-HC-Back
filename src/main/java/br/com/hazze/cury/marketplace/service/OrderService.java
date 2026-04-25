@@ -13,9 +13,9 @@ import br.com.hazze.cury.marketplace.repositories.OrderItemRepository;
 import br.com.hazze.cury.marketplace.repositories.OrderRepository;
 import br.com.hazze.cury.marketplace.repositories.ProductRepository;
 import br.com.hazze.cury.marketplace.repositories.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ public class OrderService {
     private final OrderItemMapper orderItemMapper;
 
     @Transactional
-    public OrderResponseDTO create(OrderRequestDTO dto) {
-        User user = userRepository.findById(dto.userId())
+    public OrderResponseDTO create(OrderRequestDTO dto, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         Order order = orderMapper.toEntity(dto);
@@ -88,9 +88,21 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponseDTO findById(Long id) {
+    public OrderResponseDTO findByIdForAdmin(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+
+        return orderMapper.toResponse(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponseDTO findByIdForUser(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new BusinessException("Você não tem permissão para acessar este pedido.");
+        }
 
         return orderMapper.toResponse(order);
     }

@@ -7,18 +7,34 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record CartResponseDTO(
-        @Schema(example = "1")
+
+        @Schema(
+                description = "ID do carrinho.",
+                example = "1"
+        )
         Long id,
 
-        @Schema(example = "9000.00")
+        @Schema(
+                description = "Valor total do carrinho.",
+                example = "1799.80"
+        )
         BigDecimal total,
 
-        @Schema(example = "ACTIVE")
+        @Schema(
+                description = "Status atual do carrinho.",
+                example = "ACTIVE"
+        )
         CartStatus status,
 
-        @Schema(example = "1")
+        @Schema(
+                description = "ID do usuário dono do carrinho.",
+                example = "1"
+        )
         Long userId,
 
+        @Schema(
+                description = "Lista de itens adicionados ao carrinho."
+        )
         List<CartItemResponseDTO> items
-) {
-}
+
+) {}

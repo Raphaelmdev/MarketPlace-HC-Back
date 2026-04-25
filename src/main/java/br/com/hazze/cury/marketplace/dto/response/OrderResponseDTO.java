@@ -8,21 +8,40 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponseDTO(
-        @Schema(example = "1")
+
+        @Schema(
+                description = "ID do pedido.",
+                example = "1"
+        )
         Long id,
 
-        @Schema(example = "9000.00")
+        @Schema(
+                description = "Valor total do pedido.",
+                example = "1799.80"
+        )
         BigDecimal total,
 
-        @Schema(example = "PENDING")
+        @Schema(
+                description = "Status atual do pedido.",
+                example = "PENDING"
+        )
         OrderStatus status,
 
-        @Schema(example = "1")
+        @Schema(
+                description = "ID do usuário que realizou o pedido.",
+                example = "1"
+        )
         Long userId,
 
+        @Schema(
+                description = "Lista de itens do pedido."
+        )
         List<OrderItemResponseDTO> items,
 
-        @Schema(example = "2026-04-21T10:30:00")
+        @Schema(
+                description = "Data e hora de criação do pedido.",
+                example = "2026-04-21T10:30:00"
+        )
         LocalDateTime createdAt
-) {
-}
+
+) {}

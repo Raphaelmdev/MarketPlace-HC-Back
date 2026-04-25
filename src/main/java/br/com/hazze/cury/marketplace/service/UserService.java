@@ -1,7 +1,7 @@
 package br.com.hazze.cury.marketplace.service;
 
 import br.com.hazze.cury.marketplace.dto.request.UserAdminRequestDTO;
-import br.com.hazze.cury.marketplace.dto.request.UserRequestDTO;
+import br.com.hazze.cury.marketplace.dto.request.UserClientRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.UserStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.UserResponseDTO;
 import br.com.hazze.cury.marketplace.entities.User;
@@ -25,7 +25,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDTO create(UserRequestDTO dto) {
+    public UserResponseDTO create(UserClientRequestDTO dto) {
         validateEmailAndCpf(dto.email(), dto.cpf());
 
         User user = userMapper.toEntity(dto);
@@ -60,7 +60,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserRequestDTO dto) {
+    public UserResponseDTO update(Long id, UserClientRequestDTO dto) {
         User user = findEntityById(id);
 
         if (!user.getEmail().equals(dto.email()) && userRepository.existsByEmail(dto.email())) {

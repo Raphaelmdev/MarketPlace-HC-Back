@@ -6,48 +6,95 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 public record UserResponseDTO(
-        @Schema(example = "1")
+
+        @Schema(
+                description = "ID do usuário.",
+                example = "1"
+        )
         Long id,
 
-        @Schema(example = "Raphael Martins")
+        @Schema(
+                description = "Nome do usuário.",
+                example = "Cliente Exemplo"
+        )
         String name,
 
-        @Schema(example = "raphael@email.com")
+        @Schema(
+                description = "E-mail do usuário.",
+                example = "cliente@email.com"
+        )
         String email,
 
-        @Schema(example = "11999999999")
+        @Schema(
+                description = "Telefone do usuário (somente números).",
+                example = "11999999999"
+        )
         String phone,
 
-        @Schema(example = "12345678901")
+        @Schema(
+                description = "CPF do usuário (somente números).",
+                example = "12345678901"
+        )
         String cpf,
-        @Schema(example = "12345678")
+
+        @Schema(
+                description = "CEP do usuário (somente números).",
+                example = "01001000"
+        )
         String cep,
 
-        @Schema(example = "Rua Exemplo")
+        @Schema(
+                description = "Rua do endereço.",
+                example = "Rua das Flores"
+        )
         String street,
 
-        @Schema(example = "123")
+        @Schema(
+                description = "Número do endereço.",
+                example = "123"
+        )
         String number,
 
-        @Schema(example = "Apto 12, Bloco B")
+        @Schema(
+                description = "Complemento do endereço.",
+                example = "Apto 12, Bloco B"
+        )
         String complement,
 
-        @Schema(example = "Centro")
+        @Schema(
+                description = "Bairro.",
+                example = "Centro"
+        )
         String neighborhood,
 
-        @Schema(example = "São Paulo")
+        @Schema(
+                description = "Cidade.",
+                example = "Rio de Janeiro"
+        )
         String city,
 
-        @Schema(example = "SP")
+        @Schema(
+                description = "Estado (UF).",
+                example = "RJ"
+        )
         String state,
 
-        @Schema(example = "true")
+        @Schema(
+                description = "Indica se o usuário está ativo.",
+                example = "true"
+        )
         Boolean active,
 
-        @Schema(example = "CLIENT")
+        @Schema(
+                description = "Papel do usuário (ADMIN ou CLIENT).",
+                example = "CLIENT"
+        )
         Role role,
 
-        @Schema(example = "2026-04-21T10:30:00")
+        @Schema(
+                description = "Data e hora de criação do usuário.",
+                example = "2026-04-21T10:30:00"
+        )
         LocalDateTime createdAt
-) {
-}
+
+) {}

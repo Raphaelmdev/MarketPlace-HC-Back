@@ -1,7 +1,7 @@
 package br.com.hazze.cury.marketplace.controller;
 
 import br.com.hazze.cury.marketplace.dto.request.UserAdminRequestDTO;
-import br.com.hazze.cury.marketplace.dto.request.UserRequestDTO;
+import br.com.hazze.cury.marketplace.dto.request.UserClientRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.UserStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.UserResponseDTO;
@@ -37,7 +37,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserClientRequestDTO dto) {
         UserResponseDTO response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -102,7 +102,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UserClientRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
