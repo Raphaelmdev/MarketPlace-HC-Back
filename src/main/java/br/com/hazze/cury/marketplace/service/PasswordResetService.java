@@ -1,4 +1,4 @@
-package br.com.hazze.cury.marketplace.services;
+package br.com.hazze.cury.marketplace.service;
 
 import br.com.hazze.cury.marketplace.dto.auth.ForgotPasswordRequestDTO;
 import br.com.hazze.cury.marketplace.dto.auth.ResetPasswordRequestDTO;
@@ -36,10 +36,20 @@ public class PasswordResetService {
             return null;
         }
 
-        tokenRepository.findByUser(user)
-                .ifPresent(tokenRepository::delete);
+        var existingToken = tokenRepository.findByUser(user);
 
-        tokenRepository.flush();
+        if (existingToken.isPresent()) {
+            PasswordResetToken oldToken = existingToken.get();
+
+            if (!oldToken.isUsed() && oldToken.getExpiresAt().isAfter(LocalDateTime.now())) {
+                throw new BusinessException(
+                        "Já existe um link de recuperação válido. Aguarde ele expirar para solicitar outro."
+                );
+            }
+
+            tokenRepository.delete(oldToken);
+            tokenRepository.flush();
+        }
 
         String token = UUID.randomUUID().toString();
 

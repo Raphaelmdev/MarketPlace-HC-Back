@@ -3,7 +3,7 @@ package br.com.hazze.cury.marketplace.controller;
 import br.com.hazze.cury.marketplace.dto.auth.ForgotPasswordRequestDTO;
 import br.com.hazze.cury.marketplace.dto.auth.ResetPasswordRequestDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
-import br.com.hazze.cury.marketplace.services.PasswordResetService;
+import br.com.hazze.cury.marketplace.service.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
