@@ -1,14 +1,13 @@
 package br.com.hazze.cury.marketplace.service;
 
-import br.com.hazze.cury.marketplace.dto.request.OrderItemRequestDTO;
-import br.com.hazze.cury.marketplace.dto.request.OrderRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.OrderStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.OrderResponseDTO;
 import br.com.hazze.cury.marketplace.entities.*;
 import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
-import br.com.hazze.cury.marketplace.mappers.OrderItemMapper;
 import br.com.hazze.cury.marketplace.mappers.OrderMapper;
+import br.com.hazze.cury.marketplace.repositories.CartItemRepository;
+import br.com.hazze.cury.marketplace.repositories.CartRepository;
 import br.com.hazze.cury.marketplace.repositories.OrderItemRepository;
 import br.com.hazze.cury.marketplace.repositories.OrderRepository;
 import br.com.hazze.cury.marketplace.repositories.ProductRepository;
@@ -29,15 +28,25 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
     private final OrderMapper orderMapper;
-    private final OrderItemMapper orderItemMapper;
 
     @Transactional
-    public OrderResponseDTO create(OrderRequestDTO dto, Long userId) {
+    public OrderResponseDTO createFromCart(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
-        Order order = orderMapper.toEntity(dto);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado."));
+
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+
+        if (cartItems.isEmpty()) {
+            throw new BusinessException("Carrinho vazio.");
+        }
+
+        Order order = new Order();
         order.setUser(user);
         order.setStatus(OrderStatus.PENDING);
         order.setTotal(BigDecimal.ZERO);
@@ -47,30 +56,32 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
-        for (OrderItemRequestDTO itemDTO : dto.items()) {
-            Product product = productRepository.findById(itemDTO.productId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado."));
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct();
 
             if (!product.getActive()) {
-                throw new BusinessException("Produto inativo.");
+                throw new BusinessException("Produto inativo: " + product.getName());
             }
 
-            if (product.getStock() < itemDTO.quantity()) {
+            if (product.getStock() < cartItem.getQuantity()) {
                 throw new BusinessException("Estoque insuficiente para o produto: " + product.getName());
             }
 
-            OrderItem orderItem = orderItemMapper.toEntity(itemDTO);
+            OrderItem orderItem = new OrderItem();
             orderItem.setOrder(savedOrder);
             orderItem.setProduct(product);
+            orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setUnitPrice(product.getPrice());
 
-            BigDecimal subTotal = product.getPrice().multiply(BigDecimal.valueOf(itemDTO.quantity()));
+            BigDecimal subTotal = product.getPrice()
+                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
             orderItem.setSubTotal(subTotal);
 
             orderItems.add(orderItem);
             total = total.add(subTotal);
 
-            product.setStock(product.getStock() - itemDTO.quantity());
+            product.setStock(product.getStock() - cartItem.getQuantity());
             productRepository.save(product);
         }
 
@@ -78,6 +89,10 @@ public class OrderService {
 
         savedOrder.setItems(orderItems);
         savedOrder.setTotal(total);
+
+        cartItemRepository.deleteAll(cartItems);
+        cart.setTotal(BigDecimal.ZERO);
+        cartRepository.save(cart);
 
         return orderMapper.toResponse(orderRepository.save(savedOrder));
     }
@@ -110,6 +125,28 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponseDTO> findByUserId(Long userId) {
         return orderMapper.toResponseList(orderRepository.findByUserId(userId));
+    }
+
+    @Transactional
+    public OrderResponseDTO cancelOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new BusinessException("Você não tem permissão para cancelar este pedido.");
+        }
+
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new BusinessException("Este pedido já está cancelado.");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.PAID) {
+            throw new BusinessException("Este pedido não pode ser cancelado.");
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+
+        return orderMapper.toResponse(orderRepository.save(order));
     }
 
     @Transactional

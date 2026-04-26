@@ -46,23 +46,37 @@ public class SecurityConfiguration {
                         // Public Routes
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/auth/check-email").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
 
-                        //User Routes
-                        .requestMatchers(HttpMethod.POST, "/carts").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.GET, "/carts/me").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.GET, "/carts/*/items").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.POST, "/carts/*/items").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.PUT, "/carts/items/*").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.DELETE, "/carts/items/*").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.DELETE, "/carts/*/items").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/orders").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.GET, "/orders/me").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.GET, "/orders/me/*").hasRole("CLIENT")
+                        //User Routes
+
+                                // USERS
+                                .requestMatchers(HttpMethod.GET, "/users/me").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.PUT, "/users/me").hasRole("CLIENT")
+
+                                // CART
+                                .requestMatchers(HttpMethod.POST, "/carts").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.GET, "/carts/me").hasRole("CLIENT")
+
+                                .requestMatchers(HttpMethod.GET, "/carts/me/items").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.POST, "/carts/me/items").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.PUT, "/carts/items/*").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.DELETE, "/carts/items/*").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.DELETE, "/carts/me/items").hasRole("CLIENT")
+
+                                // ORDER
+                                .requestMatchers(HttpMethod.POST, "/orders/from-cart").hasRole("CLIENT")
+
+                                .requestMatchers(HttpMethod.GET, "/orders/me").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.GET, "/orders/me/*").hasRole("CLIENT")
+                                .requestMatchers(HttpMethod.PATCH, "/orders/me/*/cancel").hasRole("CLIENT")
 
                         //Admin Routes
                                 .requestMatchers(HttpMethod.POST, "/products/*/image").hasRole("ADMIN")

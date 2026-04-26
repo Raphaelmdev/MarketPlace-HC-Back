@@ -24,6 +24,10 @@ public class AuthService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
+    public boolean checkEmailExists(String email) {
+        return repository.existsByEmail(email);
+    }
+
     public LoginResponseDTO login(AuthenticationRequestDTO data) {
 
         User user;

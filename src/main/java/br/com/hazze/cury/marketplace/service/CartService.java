@@ -67,6 +67,14 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
+    public List<CartItemResponseDTO> findItemsByUserId(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado."));
+
+        return cartItemMapper.toResponseList(cartItemRepository.findByCartId(cart.getId()));
+    }
+
+    @Transactional(readOnly = true)
     public List<CartItemResponseDTO> findItemsByCartId(Long cartId, Long loggedUserId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado."));
@@ -74,6 +82,14 @@ public class CartService {
         validateCartOwner(cart, loggedUserId);
 
         return cartItemMapper.toResponseList(cartItemRepository.findByCartId(cartId));
+    }
+
+    @Transactional
+    public CartItemResponseDTO addItemByUser(CartItemRequestDTO dto, Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado."));
+
+        return addItem(cart.getId(), dto, userId);
     }
 
     @Transactional
@@ -163,6 +179,14 @@ public class CartService {
         cartItemRepository.delete(cartItem);
 
         recalculateCartTotal(cart);
+    }
+
+    @Transactional
+    public void clearCartByUser(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado."));
+
+        clearCart(cart.getId(), userId);
     }
 
     @Transactional

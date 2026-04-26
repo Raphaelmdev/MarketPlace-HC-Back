@@ -1,11 +1,8 @@
 package br.com.hazze.cury.marketplace.controller;
 
-
-import br.com.hazze.cury.marketplace.dto.request.OrderRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.OrderStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.OrderResponseDTO;
-import br.com.hazze.cury.marketplace.dto.response.ProductResponseDTO;
 import br.com.hazze.cury.marketplace.entities.User;
 import br.com.hazze.cury.marketplace.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Tag(name = "Orders", description = "Pedidos")
@@ -34,26 +30,25 @@ public class OrderController {
     private final OrderService service;
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Criar pedido", description = "Cria um novo pedido a partir dos itens enviados. Acesso: CLIENT")
+    @Operation(
+            summary = "Criar pedido a partir do carrinho",
+            description = "Cria um pedido com base nos itens do carrinho do usuário autenticado. Acesso: CLIENT"
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso",
                     content = @Content(schema = @Schema(implementation = OrderResponseDTO.class))),
-
-            @ApiResponse(responseCode = "400", description = "Estoque insuficiente ou dados inválidos",
+            @ApiResponse(responseCode = "400", description = "Carrinho vazio, produto inativo ou estoque insuficiente",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-
-            @ApiResponse(responseCode = "404", description = "Usuário ou produto não encontrado",
+            @ApiResponse(responseCode = "404", description = "Carrinho não encontrado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @PostMapping
-    public ResponseEntity<OrderResponseDTO> create(@RequestBody @Valid OrderRequestDTO dto, Authentication authentication) {
-
+    @PostMapping("/from-cart")
+    public ResponseEntity<OrderResponseDTO> createFromCart(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
-        OrderResponseDTO response = service.create(dto, user.getId());
+        OrderResponseDTO response = service.createFromCart(user.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -73,11 +68,30 @@ public class OrderController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Buscar pedido por ID", description = "Retorna um pedido específico")
+    @Operation(
+            summary = "Listar meus pedidos",
+            description = "Retorna os pedidos do usuário autenticado. Acesso: CLIENT"
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
-            @ApiResponse(responseCode = "400", description = "Erro",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/me")
+    public ResponseEntity<List<OrderResponseDTO>> findMyOrders(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(service.findByUserId(user.getId()));
+    }
+
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(
+            summary = "Buscar meu pedido por ID",
+            description = "Retorna um pedido específico do usuário autenticado. Acesso: CLIENT"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pedido encontrado",
+                    content = @Content(schema = @Schema(implementation = OrderResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Pedido não encontrado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Acesso negado",
@@ -94,18 +108,28 @@ public class OrderController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Listar pedidos por usuário", description = "Retorna os pedidos de um usuário. Acesso: CLIENT")
+    @Operation(
+            summary = "Cancelar meu pedido",
+            description = "Cancela um pedido do usuário autenticado. Acesso: CLIENT"
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista retornada"),
-            @ApiResponse(responseCode = "404", description = "Nenhum pedido encontrado",
+            @ApiResponse(responseCode = "200", description = "Pedido cancelado com sucesso",
+                    content = @Content(schema = @Schema(implementation = OrderResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Pedido não pode ser cancelado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido não encontrado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @GetMapping("/me")
-    public ResponseEntity<List<OrderResponseDTO>> findMyOrders(Authentication authentication) {
+    @PatchMapping("/me/{id}/cancel")
+    public ResponseEntity<OrderResponseDTO> cancelMyOrder(
+            @PathVariable Long id,
+            Authentication authentication) {
+
         User user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(service.findByUserId(user.getId()));
+
+        return ResponseEntity.ok(service.cancelOrder(id, user.getId()));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -121,8 +145,10 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id,
-                                                         @RequestBody @Valid OrderStatusUpdateDTO dto) {
+    public ResponseEntity<OrderResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestBody @Valid OrderStatusUpdateDTO dto) {
+
         return ResponseEntity.ok(service.updateStatus(id, dto));
     }
 

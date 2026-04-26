@@ -4,6 +4,7 @@ import br.com.hazze.cury.marketplace.dto.auth.AuthenticationRequestDTO;
 import br.com.hazze.cury.marketplace.dto.auth.LoginResponseDTO;
 import br.com.hazze.cury.marketplace.dto.auth.RegisterRequestDTO;
 import br.com.hazze.cury.marketplace.dto.auth.RegisterResponseDTO;
+import br.com.hazze.cury.marketplace.dto.response.CheckEmailResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,28 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthService authService;
+
+    @Operation(
+            summary = "Verificar email cadastrado",
+            description = "Verifica se um email já existe no sistema. Usado para direcionar o usuário para login ou cadastro."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Verificação realizada com sucesso",
+                    content = @Content(schema = @Schema(implementation = CheckEmailResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Email inválido ou parâmetro ausente",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
+    @GetMapping("/check-email")
+    public ResponseEntity<CheckEmailResponseDTO> checkEmail(@RequestParam String email) {
+        boolean exists = authService.checkEmailExists(email);
+        return ResponseEntity.ok(new CheckEmailResponseDTO(exists));
+    }
 
     @Operation(summary = "Realizar login", description = "Autentica o usuário e retorna o token JWT")
     @ApiResponses({

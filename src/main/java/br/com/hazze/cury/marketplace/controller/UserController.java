@@ -5,6 +5,7 @@ import br.com.hazze.cury.marketplace.dto.request.UserClientRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.UserStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.ErrorResponseDTO;
 import br.com.hazze.cury.marketplace.dto.response.UserResponseDTO;
+import br.com.hazze.cury.marketplace.entities.User;
 import br.com.hazze.cury.marketplace.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,39 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserClientRequestDTO dto) {
         UserResponseDTO response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(summary = "Buscar meu perfil", description = "Retorna os dados do usuário autenticado. Acesso: CLIENT")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil retornado com sucesso",
+                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> findMe(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(service.findById(user.getId()));
+    }
+
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(summary = "Atualizar meu perfil", description = "Atualiza os dados do usuário autenticado. Acesso: CLIENT")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso",
+                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou regra de negócio inválida",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateMe(
+            Authentication authentication,
+            @RequestBody @Valid UserClientRequestDTO dto) {
+
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(service.update(user.getId(), dto));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -90,7 +125,7 @@ public class UserController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Atualizar usuário", description = "Atualiza dados de um usuário")
+    @Operation(summary = "Atualizar usuário", description = "Atualiza dados de um usuário. Acesso: ADMIN")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
