@@ -27,7 +27,7 @@ public class PasswordResetController {
             summary = "Solicitar recuperação de senha",
             description = "Gera um link temporário para redefinição de senha. " +
                     "Por segurança, a resposta não informa se o email está cadastrado. " +
-                    "Se existir uma conta vinculada, o link será retornado para fins de demonstração."
+                    "Se existir uma conta vinculada, o link será retornado para fins de demonstração. Acesso: PÚBLICO"
     )
     @ApiResponses({
             @ApiResponse(
@@ -60,7 +60,7 @@ public class PasswordResetController {
 
     @Operation(
             summary = "Redefinir senha",
-            description = "Redefine a senha do usuário utilizando um token temporário válido."
+            description = "Redefine a senha do usuário utilizando um token temporário válido. Acesso: PÚBLICO"
     )
     @ApiResponses({
             @ApiResponse(

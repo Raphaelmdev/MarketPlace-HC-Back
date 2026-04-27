@@ -20,7 +20,6 @@ public class InitializerConfiguration {
                 User admin = new User();
                 admin.setName("Administrador");
                 admin.setEmail("admin@email.com");
-                admin.setCpf("00000000000");
                 admin.setPassword(passwordEncoder.encode("123456"));
                 admin.setRole(Role.ADMIN);
                 admin.setActive(true);

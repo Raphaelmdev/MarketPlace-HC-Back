@@ -22,6 +22,17 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cart", ignore = true)
     @Mapping(target = "orders", ignore = true)
+    @Mapping(target = "phone", ignore = true)
+    @Mapping(target = "cep", ignore = true)
+    @Mapping(target = "cpf", ignore = true)
+    @Mapping(target = "street", ignore = true)
+    @Mapping(target = "neighborhood", ignore = true)
+    @Mapping(target = "city", ignore = true)
+    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "number", ignore = true)
+    @Mapping(target = "complement", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "role", ignore = true)
     User toEntity(UserAdminRequestDTO dto);
 
     UserResponseDTO toResponse(User user);

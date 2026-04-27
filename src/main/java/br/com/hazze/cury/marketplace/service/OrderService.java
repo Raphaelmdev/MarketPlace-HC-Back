@@ -111,6 +111,13 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<OrderResponseDTO> findAllAdmin(String customer) {
+        return orderMapper.toResponseList(
+                orderRepository.findByCustomer(customer)
+        );
+    }
+
+    @Transactional(readOnly = true)
     public OrderResponseDTO findByIdForUser(Long orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));

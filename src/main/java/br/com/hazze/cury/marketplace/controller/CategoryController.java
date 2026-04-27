@@ -43,7 +43,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Listar categorias", description = "Retorna todas as categorias")
+    @Operation(summary = "Listar categorias", description = "Retorna todas as categorias. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro",
@@ -54,7 +54,7 @@ public class CategoryController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @Operation(summary = "Buscar categoria por ID", description = "Retorna uma categoria específica")
+    @Operation(summary = "Buscar categoria por ID", description = "Retorna uma categoria específica. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Categoria encontrada"),
             @ApiResponse(responseCode = "400", description = "Erro",

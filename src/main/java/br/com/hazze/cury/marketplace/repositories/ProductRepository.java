@@ -14,6 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByCategoryId(Long categoryId);
 
+    boolean existsByCategoryId(Long categoryId);
+
     @Query("""
     SELECT p FROM products p
     WHERE p.active = true
@@ -23,6 +25,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     AND (:maxPrice IS NULL OR p.price <= :maxPrice)
 """)
     List<Product> findWithFilters(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Sort sort
+    );
+
+    @Query("""
+SELECT p FROM products p
+WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
+AND (:categoryId IS NULL OR p.category.id = :categoryId)
+AND (:minPrice IS NULL OR p.price >= :minPrice)
+AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+""")
+    List<Product> findWithAdminFilters(
             String name,
             Long categoryId,
             BigDecimal minPrice,

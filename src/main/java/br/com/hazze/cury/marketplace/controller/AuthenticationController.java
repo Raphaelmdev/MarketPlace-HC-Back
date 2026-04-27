@@ -29,7 +29,7 @@ public class AuthenticationController {
 
     @Operation(
             summary = "Verificar email cadastrado",
-            description = "Verifica se um email já existe no sistema. Usado para direcionar o usuário para login ou cadastro."
+            description = "Verifica se um email já existe no sistema. Usado para direcionar o usuário para login ou cadastro. Acesso: PÚBLICO"
     )
     @ApiResponses({
             @ApiResponse(
@@ -49,7 +49,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(new CheckEmailResponseDTO(exists));
     }
 
-    @Operation(summary = "Realizar login", description = "Autentica o usuário e retorna o token JWT")
+    @Operation(summary = "Realizar login", description = "Autentica o usuário e retorna o token JWT. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
                     content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
@@ -63,7 +63,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(authService.login(data));
     }
 
-    @Operation(summary = "Cadastrar usuário", description = "Cria um novo usuário no sistema")
+    @Operation(summary = "Cadastrar usuário", description = "Cria um novo usuário no sistema. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso",
                     content = @Content(schema = @Schema(implementation = RegisterResponseDTO.class))),

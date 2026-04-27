@@ -70,7 +70,7 @@ public class ProductController {
         return ResponseEntity.ok(service.uploadImage(id, file));
     }
 
-    @Operation(summary = "Listar produtos", description = "Retorna todos os produtos")
+    @Operation(summary = "Listar produtos", description = "Retorna apenas produtos ativos. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro na requisição",
@@ -78,24 +78,75 @@ public class ProductController {
     })
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> findAll() {
+        return ResponseEntity.ok(service.findAllActive());
+    }
+
+
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(summary = "Listar todos os produtos", description = "Retorna produtos ativos e inativos. Acesso: ADMIN")
+    @GetMapping("/admin")
+    public ResponseEntity<List<ProductResponseDTO>> findAllAdmin() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @Operation(summary = "Listar produtos ativos", description = "Retorna apenas produtos ativos")
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(
+            summary = "Filtrar produtos para administração",
+            description = """
+        Retorna produtos ativos e inativos com base em filtros opcionais.
+        Acesso: ADMIN.
+
+        Exemplos de uso:
+        - /products/admin/filter?name=terno
+        - /products/admin/filter?categoryId=1
+        - /products/admin/filter?minPrice=300&maxPrice=1200
+        - /products/admin/filter?name=terno&sort=price,desc
+        """
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro na requisição",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de produtos retornada com sucesso",
+                    content = @Content(schema = @Schema(implementation = ProductResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Parâmetros inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acesso negado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
-    @GetMapping("/active")
-    public ResponseEntity<List<ProductResponseDTO>> findAllActive() {
-        return ResponseEntity.ok(service.findAllActive());
+    @GetMapping("/admin/filter")
+    public ResponseEntity<List<ProductResponseDTO>> findWithAdminFilters(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(defaultValue = "id,asc") String sort
+    ) {
+        String[] sortParams = sort.split(",");
+        String sortField = sortParams[0];
+        String sortDirection = sortParams.length > 1 ? sortParams[1] : "asc";
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        Sort sortObj = Sort.by(direction, sortField);
+
+        return ResponseEntity.ok(
+                service.findWithAdminFilters(name, categoryId, minPrice, maxPrice, sortObj)
+        );
     }
 
     @Operation(
             summary = "Filtrar produtos",
             description = """
-        Retorna produtos ativos com base em filtros opcionais.
+        Retorna produtos ativos com base em filtros opcionais. Acesso: PÚBLICO.
 
         Exemplos de uso:
         - /products/filter?name=terno
@@ -160,7 +211,7 @@ public class ProductController {
         );
     }
 
-    @Operation(summary = "Buscar produto por ID", description = "Retorna um produto específico")
+    @Operation(summary = "Buscar produto por ID", description = "Retorna um produto específico. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Produto encontrado",
                     content = @Content(schema = @Schema(implementation = ProductResponseDTO.class))),
@@ -174,7 +225,7 @@ public class ProductController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @Operation(summary = "Listar produtos por categoria", description = "Retorna produtos vinculados a uma categoria")
+    @Operation(summary = "Listar produtos por categoria", description = "Retorna produtos vinculados a uma categoria. Acesso: PÚBLICO")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro na requisição",

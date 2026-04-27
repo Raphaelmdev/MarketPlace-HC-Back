@@ -7,9 +7,10 @@ import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
 import br.com.hazze.cury.marketplace.mappers.CategoryMapper;
 import br.com.hazze.cury.marketplace.repositories.CategoryRepository;
-import org.springframework.transaction.annotation.Transactional;
+import br.com.hazze.cury.marketplace.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final CategoryMapper categoryMapper;
 
     @Transactional
@@ -65,9 +67,12 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
 
+        if (productRepository.existsByCategoryId(id)) {
+            throw new BusinessException(
+                    "Não é possível remover uma categoria que possui produtos vinculados."
+            );
+        }
+
         categoryRepository.delete(category);
     }
 }
-
-
-

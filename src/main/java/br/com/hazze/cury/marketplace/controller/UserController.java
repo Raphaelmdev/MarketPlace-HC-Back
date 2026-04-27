@@ -31,16 +31,21 @@ public class UserController {
 
     private final UserService service;
 
-    @Operation(summary = "Cadastrar usuário", description = "Cria um novo usuário comum")
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(summary = "Criar administrador", description = "Cria um novo usuário administrador. Acesso: ADMIN")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso",
+            @ApiResponse(responseCode = "201", description = "Administrador criado com sucesso",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou regra de negócio inválida",
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserClientRequestDTO dto) {
-        UserResponseDTO response = service.create(dto);
+    @PostMapping("/admin")
+    public ResponseEntity<UserResponseDTO> createAdmin(
+            @RequestBody @Valid UserAdminRequestDTO dto
+    ) {
+        UserResponseDTO response = service.createAdmin(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -78,22 +83,6 @@ public class UserController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Cadastrar usuário admin", description = "Cria usuário com permissões administrativas. Acesso: ADMIN")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário administrador criado com sucesso",
-                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou regra de negócio inválida",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Acesso negado",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
-    })
-    @PostMapping("/admin")
-    public ResponseEntity<UserResponseDTO> createAdmin(@RequestBody @Valid UserAdminRequestDTO dto) {
-        UserResponseDTO response = service.createAdmin(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @SecurityRequirement(name = "bearer-key")
     @Operation(summary = "Listar usuários", description = "Retorna todos os usuários. Acesso: ADMIN")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
@@ -125,23 +114,6 @@ public class UserController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Atualizar usuário", description = "Atualiza dados de um usuário. Acesso: ADMIN")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
-                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou regra de negócio inválida",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Acesso negado",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
-    })
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UserClientRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
-    @SecurityRequirement(name = "bearer-key")
     @Operation(summary = "Atualizar status do usuário", description = "Ativa ou desativa um usuário. Acesso: ADMIN")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso",
@@ -154,8 +126,20 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PatchMapping("/{id}/status")
-    public ResponseEntity<UserResponseDTO> updateStatus(@PathVariable Long id, @RequestBody @Valid UserStatusUpdateDTO dto) {
-        return ResponseEntity.ok(service.updateStatus(id, dto));
+    public ResponseEntity<UserResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestBody @Valid UserStatusUpdateDTO dto,
+            Authentication authentication
+    ) {
+        User loggedUser = (User) authentication.getPrincipal();
+
+        UserResponseDTO response = service.updateStatus(
+                id,
+                dto,
+                loggedUser.getId()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @SecurityRequirement(name = "bearer-key")

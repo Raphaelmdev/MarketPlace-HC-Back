@@ -63,8 +63,10 @@ public class OrderController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<OrderResponseDTO>> findAll(
+            @RequestParam(required = false) String customer
+    ) {
+        return ResponseEntity.ok(service.findAllAdmin(customer));
     }
 
     @SecurityRequirement(name = "bearer-key")
@@ -77,7 +79,7 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @GetMapping("/me")
+    @GetMapping("/my")
     public ResponseEntity<List<OrderResponseDTO>> findMyOrders(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 

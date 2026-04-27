@@ -110,6 +110,19 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductResponseDTO> findWithAdminFilters(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Sort sort
+    ) {
+        return productMapper.toResponseList(
+                productRepository.findWithAdminFilters(name, categoryId, minPrice, maxPrice, sort)
+        );
+    }
+
+    @Transactional(readOnly = true)
     public ProductResponseDTO findById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado."));

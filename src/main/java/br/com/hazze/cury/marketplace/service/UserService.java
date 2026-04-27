@@ -4,6 +4,7 @@ import br.com.hazze.cury.marketplace.dto.request.UserAdminRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.UserClientRequestDTO;
 import br.com.hazze.cury.marketplace.dto.request.UserStatusUpdateDTO;
 import br.com.hazze.cury.marketplace.dto.response.UserResponseDTO;
+import br.com.hazze.cury.marketplace.entities.Role;
 import br.com.hazze.cury.marketplace.entities.User;
 import br.com.hazze.cury.marketplace.exceptions.BusinessException;
 import br.com.hazze.cury.marketplace.exceptions.ResourceNotFoundException;
@@ -25,24 +26,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDTO create(UserClientRequestDTO dto) {
-        validateEmailAndCpf(dto.email(), dto.cpf());
-
-        User user = userMapper.toEntity(dto);
-
-        user.setPassword(passwordEncoder.encode(dto.password()));
-        user.setActive(true);
-
-        return userMapper.toResponse(userRepository.save(user));
-    }
-
-    @Transactional
     public UserResponseDTO createAdmin(UserAdminRequestDTO dto) {
-        validateEmailAndCpf(dto.email(), dto.cpf());
+        validateEmail(dto.email());
 
         User user = userMapper.toEntity(dto);
 
         user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setRole(Role.ADMIN);
         user.setActive(true);
 
         return userMapper.toResponse(userRepository.save(user));
@@ -89,8 +79,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO updateStatus(Long id, UserStatusUpdateDTO dto) {
+    public UserResponseDTO updateStatus(Long id, UserStatusUpdateDTO dto, Long authenticatedUserId) {
         User user = findEntityById(id);
+
+        if (user.getId().equals(authenticatedUserId) && Boolean.FALSE.equals(dto.active())) {
+            throw new BusinessException("Você não pode desativar sua própria conta.");
+        }
 
         user.setActive(dto.active());
 
@@ -101,6 +95,12 @@ public class UserService {
     public void delete(Long id) {
         User user = findEntityById(id);
         userRepository.delete(user);
+    }
+
+    private void validateEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException("Já existe um usuário com esse e-mail.");
+        }
     }
 
     private void validateEmailAndCpf(String email, String cpf) {
